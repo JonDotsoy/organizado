@@ -2,6 +2,14 @@
 
 Project to order your tasks with your terminal.
 
+## How to install
+
+Install with Deno
+
+```sh
+deno install -f --allow-env=HOME --allow-read=$HOME/.organizado/ --allow-write=$HOME/.organizado/ https://deno.land/x/organizado/cli.ts
+```
+
 ## Commands
 
 - Create a new project:
