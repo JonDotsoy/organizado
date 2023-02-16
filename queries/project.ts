@@ -1,6 +1,7 @@
 import { configurationPath } from "../configuration-base-path.ts";
 import { ProjectDetail } from "../dto/project-detail.dto.ts";
 import { ProjectEvent } from "../dto/project-event.dto.ts";
+import { TaskDetail } from "../dto/task-detail.dto.ts";
 import { fetchConfiguration, putConfiguration } from "./configuration.ts";
 
 export const fetchProject = async (projectId: string) => {
@@ -30,7 +31,7 @@ export const putProject = async (
     projects.push({ id: projectId, location, ...rest });
 
     const eventCreated: ProjectEvent = {
-      Created: {
+      CreatedProject: {
         timestamp: Date.now(),
       },
     };
@@ -44,3 +45,15 @@ export const putProject = async (
     await putConfiguration(config);
   }
 };
+
+export const putProjectEvent = async (
+  { location }: ProjectDetail,
+  projectEvent: ProjectEvent,
+) => {
+  const file = await Deno.open(new URL(location), { append: true })
+
+  await file.write(new TextEncoder().encode(JSON.stringify(projectEvent)))
+  await file.write(new TextEncoder().encode("\n"))
+
+  file.close()
+}

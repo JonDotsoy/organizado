@@ -2,21 +2,26 @@ import { parse } from "https://deno.land/std@0.175.0/flags/mod.ts";
 import { configurationProjectsPath } from "./configuration-base-path.ts";
 import { Configuration } from "./dto/configuration.dto.ts";
 import { ProjectDetail } from "./dto/project-detail.dto.ts";
+import { TaskDetail } from "./dto/task-detail.dto.ts";
 import { fetchConfiguration, putConfiguration } from "./queries/configuration.ts";
-import { putProject } from "./queries/project.ts";
+import { putProject, putProjectEvent } from "./queries/project.ts";
 
 class CommandArgumentError extends Error { }
 
 const handlerProjectList = async () => {
   const config = await fetchConfiguration();
+  const project = config.project_selected ? config.projects?.find(project => project.id === config.project_selected) ?? null : null
 
-  if (!config.project_selected) {
+  if (!project) {
     console.error(`No project selected`);
     return;
   }
 
   console.error(`Project selected:`);
-  console.log(config.project_selected);
+
+  console.log(`- ID: ${project.id}`)
+  console.log(`  Title: ${project.title}`)
+  console.log(`  Location: ${project.location}`)
 };
 
 const helpHandlerSelectProject = (config: Configuration, projectId: string | null): ProjectDetail | null => {
@@ -54,7 +59,7 @@ const handlerProjectSelect = async (projectId: string | null) => {
   const config = await fetchConfiguration()
   const project = await helpHandlerSelectProject(config, projectId)
 
-  if (project && confirm(`Select this project?`)) {
+  if (project) {
     config.project_selected = project.id
     await putConfiguration(config)
     console.log(`Project ${project.title} (${project.id}) selected 🙌`)
@@ -83,6 +88,7 @@ const handlerProjectNew = async (props: handlerProjectNewProps) => {
       id: projectId,
       title,
       location: destination.toString(),
+      tasks: [],
     };
 
     await putProject(newProjectDetail);
@@ -92,9 +98,108 @@ const handlerProjectNew = async (props: handlerProjectNewProps) => {
 };
 
 const handlerTaskHelp = () => console.error("handlerTaskHelp");
-const handlerTaskNew = () => console.error("handlerTaskNew");
-const handlerTaskList = () => console.error("handlerTaskList");
-const handlerTaskFocus = () => console.error("handlerTaskFocus");
+
+interface handlerTaskNewProps {
+  title: string | null
+  taskRelated: number | null
+}
+
+const handlerTaskNew = async (props: handlerTaskNewProps) => {
+  const configuration = await fetchConfiguration()
+  const project = configuration.project_selected ? configuration.projects?.find(project => project.id === configuration.project_selected) ?? null : null
+
+  if (!project) throw new Error(`Project not selected`)
+
+  const title = props.title ?? prompt("Task Title:")
+
+  if (!title) throw new Error("Require a title valid")
+
+  const task: TaskDetail = {
+    id: project.tasks.length + 1,
+    title,
+    taskRelated: props.taskRelated ?? undefined,
+  }
+
+  console.error(`- ID: ${task.id}`)
+  console.error(`  Title: ${task.title}`)
+  console.error(`  Task Related: ${task.taskRelated}`)
+
+  if (confirm(`Created task ${task.id}?`)) {
+    project.tasks.push(task)
+
+    await putConfiguration(configuration)
+  }
+}
+
+const handlerTaskList = async () => {
+  const configuration = await fetchConfiguration()
+  const project = configuration.project_selected ? configuration.projects?.find(project => project.id === configuration.project_selected) ?? null : null
+
+  if (!project) throw new Error(`Project not selected`)
+
+  for (const task of project.tasks) {
+    console.error(`- ID: ${task.id}`)
+    console.error(`  Title: ${task.title}`)
+    console.error()
+  }
+}
+
+const handlerTaskFocus = async (taskIdString: string | number | null) => {
+  if (!taskIdString) throw new Error("Require the task id argument")
+
+  const taskId = Number(taskIdString)
+
+  const configuration = await fetchConfiguration()
+  const project = configuration.project_selected ? configuration.projects?.find(project => project.id === configuration.project_selected) ?? null : null
+
+  if (!project) throw new Error(`Cannot found project`)
+
+  const task = project?.tasks.find(task => task.id === taskId) ?? null
+
+  if (!task) throw new Error(`Cannot found task ${taskIdString}`)
+
+  await putProjectEvent(project, { StartTrack: { taskId, timestamp: Date.now() } })
+
+  let timerRunning = true
+
+  while (true) {
+    console.clear()
+    console.error(`Start focus task:`)
+    console.error(`- ID: ${task.id}`)
+    console.error(`  Title: ${task.title}`)
+    console.error()
+    console.error(` State: ${timerRunning ? "Running" : "Stopped"}`)
+    console.error()
+
+    const command = prompt(`Command (P = Pause timer, Q = Stop, X = Finish task, M = Add comment, C = Create a new task related)`)
+
+    const codeAction = command?.toLowerCase()
+
+    if (codeAction === "p") {
+      if (timerRunning) {
+        await putProjectEvent(project, { StopTrack: { taskId, timestamp: Date.now() } })
+        timerRunning = false
+      } else if (!timerRunning) {
+        await putProjectEvent(project, { StartTrack: { taskId, timestamp: Date.now() } })
+        timerRunning = true
+      }
+    }
+
+    if (codeAction === "q") {
+      await putProjectEvent(project, { StopTrack: { taskId, timestamp: Date.now() } })
+      return
+    }
+
+    if (codeAction === "m") {
+      await putProjectEvent(project, { TaskComment: { taskId, timestamp: Date.now(), comment: prompt(`Add Comment:`) ?? '' } })
+    }
+
+    if (codeAction === "c") {
+      await handlerTaskNew({ title: null, taskRelated: taskId })
+    }
+  }
+}
+
 const handlerHelp = () => console.error("Help");
 
 const main = () => {
@@ -130,10 +235,10 @@ const main = () => {
           return handlerTaskList();
         case "new":
         case "n":
-          return handlerTaskNew();
+          return handlerTaskNew({ title: args.title ?? null, taskRelated: null });
         case "focus":
         case "f":
-          return handlerTaskFocus();
+          return handlerTaskFocus(args._.at(2) ?? null);
       }
       return handlerTaskHelp();
   }
