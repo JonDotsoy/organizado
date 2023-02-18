@@ -23,7 +23,7 @@ export class WorkspaceModule {
           projectLocation,
         ),
       ),
-  ) {}
+  ) { }
 
   async init() {
   }
