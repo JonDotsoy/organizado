@@ -19,10 +19,11 @@ export default (props: Props) => {
     commandDataTypeModule,
   );
 
-  const className = fileURLtoKeyName(props.out)
+  const className = fileURLtoKeyName(props.out);
 
   return template(
-    `import { CommandType } from ${Deno.inspect(commandDataTypeModuleRelativePath)
+    `import { CommandType } from ${
+      Deno.inspect(commandDataTypeModuleRelativePath)
     };`,
     ``,
     `export default class ${className} implements CommandType {`,

@@ -16,10 +16,11 @@ export default (props: Props) => {
     props.fileToTest,
   );
 
-  const className = fileURLtoKeyName(props.fileToTest)
+  const className = fileURLtoKeyName(props.fileToTest);
 
   return template(
-    `import ${className} from ${Deno.inspect(commandDataTypeModuleRelativePath)
+    `import ${className} from ${
+      Deno.inspect(commandDataTypeModuleRelativePath)
     };`,
     ``,
     `Deno.test(${Deno.inspect(className)}, () => {`,

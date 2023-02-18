@@ -2,4 +2,4 @@ import ProjectHelpCommand from "../../../../src/domain/cli/project/project-help.
 
 Deno.test("ProjectHelpCommand", () => {
   // Your test here
-})
+});
