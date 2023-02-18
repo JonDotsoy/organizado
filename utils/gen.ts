@@ -1,6 +1,5 @@
 import { ulid } from "npm:ulid";
 
-
 class NotificationSignal<T = void> {
   private subs: ((data: T) => void)[] = [];
 
@@ -39,7 +38,11 @@ export class GEN<T extends { event: Record<any, any> }, E> {
 
   constructor(
     readonly mapChanges: A<T>,
-    readonly middleware: (<K extends keyof T["event"]>(keyEvent: K, valueEvent: Exclude<T["event"][K], undefined>, target: T) => void)[],
+    readonly middleware: (<K extends keyof T["event"]>(
+      keyEvent: K,
+      valueEvent: Exclude<T["event"][K], undefined>,
+      target: T,
+    ) => void)[],
     readonly returnNext: () => E,
   ) {
     this.snap = returnNext();
@@ -72,7 +75,7 @@ export class GEN<T extends { event: Record<any, any> }, E> {
         this.notificationEvents.notify(event);
         for (const [keyEvent, bodyEvent] of Object.entries(event.event)) {
           this.mapChanges[keyEvent](bodyEvent, event);
-          this.middleware.forEach(mid => mid(keyEvent, bodyEvent, event))
+          this.middleware.forEach((mid) => mid(keyEvent, bodyEvent, event));
         }
       }
     }
@@ -81,14 +84,21 @@ export class GEN<T extends { event: Record<any, any> }, E> {
     return this.getSnap();
   }
 
-  pushEvent<K extends keyof T["event"]>(keyEvent: K, valueEvent: Exclude<T["event"][K], undefined>) {
+  pushEvent<K extends keyof T["event"]>(
+    keyEvent: K,
+    valueEvent: Exclude<T["event"][K], undefined>,
+  ) {
     // @ts-ignore
-    this.next({ id: ulid(), event: { [keyEvent]: valueEvent } })
+    this.next({ id: ulid(), event: { [keyEvent]: valueEvent } });
   }
 }
 
 export const gen = <T extends { event: Record<any, any> }, E>(
   mapChanges: A<T>,
-  middleware: (<K extends keyof T["event"]>(keyEvent: K, valueEvent: Exclude<T["event"][K], undefined>, target: T) => void)[],
+  middleware: (<K extends keyof T["event"]>(
+    keyEvent: K,
+    valueEvent: Exclude<T["event"][K], undefined>,
+    target: T,
+  ) => void)[],
   returnNext: () => E,
 ) => new GEN(mapChanges, middleware, returnNext);

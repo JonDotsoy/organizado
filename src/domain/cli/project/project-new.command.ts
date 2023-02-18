@@ -5,7 +5,7 @@ import { CommandType } from "../command/command.data-type.ts";
 export class ProjectNewCommand implements CommandType {
   constructor(
     readonly workspace: WorkspaceModule,
-  ) { }
+  ) {}
   async handler(_args: string[]) {
     const res = await cliffyPrompt.prompt([
       {
@@ -13,12 +13,12 @@ export class ProjectNewCommand implements CommandType {
         message: "Choice a title",
         name: "title",
       },
-    ])
+    ]);
 
-    const project = await this.workspace.createProject()
+    const project = await this.workspace.createProject();
 
     if (res.title) {
-      project.pushEvent("UpdateTitle", { title: res.title })
+      project.pushEvent("UpdateTitle", { title: res.title });
     }
   }
 }

@@ -13,7 +13,7 @@ export class TaskDetail {
     readonly updatedAt: Date | null,
     readonly taskRelated: Set<string>,
     readonly comments: Map<string, { comment: string }>,
-  ) { }
+  ) {}
 
   static fromEvents(id: string, location: URL): TaskGen {
     let title: string | null = null;
@@ -30,10 +30,18 @@ export class TaskDetail {
         UpdateTitle: (event) => title = event.title,
       },
       [
-        (_, _1, { id }) => updatedAt = new Date(decodeTime(id))
+        (_, _1, { id }) => updatedAt = new Date(decodeTime(id)),
       ],
       () =>
-        new TaskDetail(id, location, title, createdAt, updatedAt, taskRelated, comments),
+        new TaskDetail(
+          id,
+          location,
+          title,
+          createdAt,
+          updatedAt,
+          taskRelated,
+          comments,
+        ),
     );
   }
 }

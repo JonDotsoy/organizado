@@ -23,37 +23,46 @@ export class WorkspaceModule {
           projectLocation,
         ),
       ),
-  ) { }
+  ) {}
 
   async init() {
   }
 
   async *listProjects() {
-    let projectIds = new Set<string>()
+    let projectIds = new Set<string>();
     for await (const f of Deno.readDir(this.projectsDirLocation)) {
       if (f.isFile && f.name.endsWith(".jsonl")) {
-        const projectId = f.name.substring(0, f.name.length - ".jsonl".length)
-        projectIds.add(projectId)
+        const projectId = f.name.substring(0, f.name.length - ".jsonl".length);
+        projectIds.add(projectId);
       }
     }
     for (const projectId of Array.from(projectIds).sort()) {
-      yield await this.selectProject(projectId)
+      yield await this.selectProject(projectId);
     }
   }
 
   async getConfiguration(): Promise<Configuration> {
     try {
-      return JSON.parse(new TextDecoder().decode(await Deno.readFile(this.configurationLocation)))
+      return JSON.parse(
+        new TextDecoder().decode(
+          await Deno.readFile(this.configurationLocation),
+        ),
+      );
     } catch (ex) {
-      if (typeof ex === "object" && ex !== null && ex.code === 'ENOENT') return {}
-      throw ex
+      if (typeof ex === "object" && ex !== null && ex.code === "ENOENT") {
+        return {};
+      }
+      throw ex;
     }
   }
 
   async putConfiguration(configuration: Configuration): Promise<void> {
-    await Deno.writeFile(this.configurationLocation, new TextEncoder().encode(
-      JSON.stringify(configuration, null, 2)
-    ))
+    await Deno.writeFile(
+      this.configurationLocation,
+      new TextEncoder().encode(
+        JSON.stringify(configuration, null, 2),
+      ),
+    );
   }
 
   async subscribeGen(gen: GEN<any, any>) {

@@ -4,13 +4,13 @@ import { CommandType } from "../command/command.data-type.ts";
 
 export class ProjectSelectCommand implements CommandType {
   constructor(
-    readonly workspace: WorkspaceModule
-  ) { }
+    readonly workspace: WorkspaceModule,
+  ) {}
 
   async handler([projectId]: string[]) {
-    const project = await this.workspace.selectProject(projectId)
-    const configuration = await this.workspace.getConfiguration()
-    configuration.project_selected = projectId
-    await this.workspace.putConfiguration(configuration)
+    const project = await this.workspace.selectProject(projectId);
+    const configuration = await this.workspace.getConfiguration();
+    configuration.project_selected = projectId;
+    await this.workspace.putConfiguration(configuration);
   }
 }

@@ -10,29 +10,44 @@ export class ProjectWorkspace {
   constructor(
     readonly workspace: WorkspaceModule,
     readonly projectGen: ProjectGen,
-  ) { }
+  ) {}
 
-  async * listTasks() {
+  async *listTasks() {
     try {
-      for await (const taskRelativePath of await Deno.readDir(this.workspace.projectsTasksLocation(this.projectGen.getSnap().location))) {
-        if (taskRelativePath.isFile && taskRelativePath.name.endsWith(".jsonl")) {
-          const taskId = taskRelativePath.name.substring(0, taskRelativePath.name.length - ".jsonl".length)
-          yield await this.selectTask(taskId)
+      for await (
+        const taskRelativePath of await Deno.readDir(
+          this.workspace.projectsTasksLocation(
+            this.projectGen.getSnap().location,
+          ),
+        )
+      ) {
+        if (
+          taskRelativePath.isFile && taskRelativePath.name.endsWith(".jsonl")
+        ) {
+          const taskId = taskRelativePath.name.substring(
+            0,
+            taskRelativePath.name.length - ".jsonl".length,
+          );
+          yield await this.selectTask(taskId);
         }
       }
     } catch (ex) {
       if (typeof ex === "object" && ex !== null && ex.code === "ENOENT") return;
-      throw ex
+      throw ex;
     }
   }
 
   async selectTask(taskId: string) {
-    const location = new URL(`${taskId}.jsonl`, this.workspace.projectsTasksLocation(this.projectGen.getSnap().location));
-    const taskDetail = TaskDetail.fromEvents(taskId, location)
+    const location = new URL(
+      `${taskId}.jsonl`,
+      this.workspace.projectsTasksLocation(this.projectGen.getSnap().location),
+    );
+    const taskGen = TaskDetail.fromEvents(taskId, location);
     for await (const event of readFile(location)) {
-      taskDetail.next(event)
+      taskGen.next(event);
     }
-    return taskDetail
+    this.workspace.subscribeGen(taskGen);
+    return taskGen;
   }
 
   async createTask(): Promise<TaskGen> {

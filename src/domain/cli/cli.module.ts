@@ -24,13 +24,19 @@ export class CliModule implements CommandType {
         switch (args.at(1)) {
           case "list":
           case "l":
-            return new ProjectListCommand(this.workspace).handler(args.slice(2));
+            return new ProjectListCommand(this.workspace).handler(
+              args.slice(2),
+            );
           case "select":
           case "s":
-            return new ProjectSelectCommand(this.workspace).handler(args.slice(2));
+            return new ProjectSelectCommand(this.workspace).handler(
+              args.slice(2),
+            );
           case "edit":
           case "e":
-            return new ProjectEditCommand(this.workspace).handler(args.slice(2));
+            return new ProjectEditCommand(this.workspace).handler(
+              args.slice(2),
+            );
           case "new":
           case "n":
             return new ProjectNewCommand(this.workspace).handler(args.slice(2));
@@ -44,7 +50,7 @@ export class CliModule implements CommandType {
             return new TaskListCommand(this.workspace).handler(args.slice(2));
           case "edit":
           case "e":
-            return new TaskEditCommand().handler(args.slice(2));
+            return new TaskEditCommand(this.workspace).handler(args.slice(2));
           case "new":
           case "n":
             return new TaskNewCommand(this.workspace).handler(args.slice(2));

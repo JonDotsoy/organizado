@@ -15,7 +15,7 @@ export class ProjectDetail {
     readonly cratedAt: Date | null,
     readonly updatedAt: Date | null,
     readonly tasks: Map<string, Pick<TaskDetail, "id">>,
-  ) { }
+  ) {}
 
   static fromEvents(id: string, location: URL): ProjectGen {
     let title: string | null = null;
@@ -30,7 +30,7 @@ export class ProjectDetail {
         CreateTask: ({ taskId }) => tasks.set(taskId, { id: taskId }),
       },
       [
-        (_, _1, { id }) => updatedAt = new Date(decodeTime(id))
+        (_, _1, { id }) => updatedAt = new Date(decodeTime(id)),
       ],
       () => new ProjectDetail(id, title, location, cratedAt, updatedAt, tasks),
     );
