@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-git diff --staged --name-only | grep ".ts$" | xargs -I_ "deno fmt _ && git add _"
+for e in $(git diff --staged --name-only | grep ".ts$")
+do
+  deno fmt $e
+  git add $e
+done
