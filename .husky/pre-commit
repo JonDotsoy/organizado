@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-git diff --staged --name-only | grep ".ts$" | xargs -I_ deno fmt _ && git add _
+git diff --staged --name-only | grep ".ts$" | xargs -I_ "deno fmt _ && git add _"
