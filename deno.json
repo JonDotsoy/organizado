@@ -1,0 +1,6 @@
+{
+  "importMap": "import_map.json",
+  "tasks": {
+    "gen": "deno run --allow-read=$PWD/ --allow-write=$PWD/ gen/cli.ts"
+  }
+}

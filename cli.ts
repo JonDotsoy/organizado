@@ -1,8 +1,19 @@
 import { CliModule } from "./src/domain/cli/cli.module.ts";
 import { WorkspaceModule } from "./src/domain/workspace/workspace.module.ts";
 
+const tryEnvHome = () => {
+  try {
+    return Deno.env.get("HOME");
+  } catch (ex) {
+    if (ex instanceof Deno.errors.PermissionDenied) {
+      return undefined;
+    }
+    throw ex;
+  }
+};
+
 const baseLocation = new URL(
-  `${Deno.env.get("HOME") ?? Deno.cwd()}/.organizado/`,
+  `${tryEnvHome() ?? Deno.cwd()}/.organizado/`,
   "file:///",
 );
 

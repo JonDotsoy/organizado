@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "path": "https://deno.land/std@0.170.0/path/mod.ts",
+    "yaml": "npm:yaml",
+    "ulid": "npm:ulid",
+    "flags": "https://deno.land/std@0.175.0/flags/mod.ts",
+    "cliffy_prompt": "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts"
+  }
+}

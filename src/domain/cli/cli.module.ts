@@ -1,16 +1,16 @@
 import { WorkspaceModule } from "../workspace/workspace.module.ts";
 import { CommandType } from "./command/command.data-type.ts";
-import { HelpCommand } from "./help/help.command.ts";
-import { ProjectEditCommand } from "./project/project-edit.command.ts";
-import { ProjectHelpCommand } from "./project/project-help.command.ts";
-import { ProjectListCommand } from "./project/project-list.command.ts";
-import { ProjectNewCommand } from "./project/project-new.command.ts";
-import { ProjectSelectCommand } from "./project/project-select.command.ts";
-import { TaskEditCommand } from "./tasks/task-edit.command.ts";
-import { TaskFocusCommand } from "./tasks/task-focus.command.ts";
-import { TaskHelpCommand } from "./tasks/task-help.command.ts";
-import { TaskListCommand } from "./tasks/task-list.command.ts";
-import { TaskNewCommand } from "./tasks/task-new.command.ts";
+import HelpCommand from "./help/help.command.ts";
+import ProjectEditCommand from "./project/project-edit.command.ts";
+import ProjectHelpCommand from "./project/project-help.command.ts";
+import ProjectListCommand from "./project/project-list.command.ts";
+import ProjectNewCommand from "./project/project-new.command.ts";
+import ProjectSelectCommand from "./project/project-select.command.ts";
+import TaskEditCommand from "./tasks/task-edit.command.ts";
+import TaskFocusCommand from "./tasks/task-focus.command.ts";
+import TaskHelpCommand from "./tasks/task-help.command.ts";
+import TaskListCommand from "./tasks/task-list.command.ts";
+import TaskNewCommand from "./tasks/task-new.command.ts";
 
 export class CliModule implements CommandType {
   constructor(

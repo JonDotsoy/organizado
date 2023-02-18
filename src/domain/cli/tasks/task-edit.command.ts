@@ -2,7 +2,7 @@ import { cliffyPrompt } from "../../../../deeps.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
 
-export class TaskEditCommand implements CommandType {
+export default class TaskEditCommand implements CommandType {
   constructor(
     readonly workspace: WorkspaceModule,
   ) {}

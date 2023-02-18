@@ -2,7 +2,7 @@ import { YAML } from "../../../../deeps.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
 
-export class ProjectListCommand implements CommandType {
+export default class ProjectListCommand implements CommandType {
   constructor(
     readonly workspace: WorkspaceModule,
   ) {}
