@@ -1,25 +1,17 @@
-export interface CreatedProject {
-  timestamp: number;
+import { Event } from "./event.dto.ts";
+
+interface UpdateTitle {
+  title: string;
 }
 
-export interface StartTrack {
-  taskId: number
-  timestamp: number
+interface CreateTask {
+  taskId: string;
 }
 
-export interface StopTrack {
-  taskId: number
-  timestamp: number
-}
-
-export interface TaskComment {
-  taskId: number
-  timestamp: number
-  comment: string
-}
-
-export type ProjectEvent =
-  | { CreatedProject: CreatedProject; }
-  | { StartTrack: StartTrack }
-  | { StopTrack: StopTrack }
-  | { TaskComment: TaskComment }
+export type ProjectEvent = Event<
+  {
+    Created: true;
+    UpdateTitle: UpdateTitle;
+    CreateTask: CreateTask;
+  }
+>;

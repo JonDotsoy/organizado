@@ -50,10 +50,10 @@ export const putProjectEvent = async (
   { location }: ProjectDetail,
   projectEvent: ProjectEvent,
 ) => {
-  const file = await Deno.open(new URL(location), { append: true })
+  const file = await Deno.open(new URL(location), { append: true });
 
-  await file.write(new TextEncoder().encode(JSON.stringify(projectEvent)))
-  await file.write(new TextEncoder().encode("\n"))
+  await file.write(new TextEncoder().encode(JSON.stringify(projectEvent)));
+  await file.write(new TextEncoder().encode("\n"));
 
-  file.close()
-}
+  file.close();
+};
