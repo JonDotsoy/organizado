@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-deno fmt
+deno fmt $(git status -s | cut -c4-)
+git add $(git status -s | cut -c4-)

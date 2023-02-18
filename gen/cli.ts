@@ -29,8 +29,9 @@ const commandHandler = async (args: string[]) => {
     testsFolder,
   );
 
-  const endNameFile = `${path.basename(path.fromFileUrl(endIncideTestFolder), ".ts")
-    }.spec.ts`;
+  const endNameFile = `${
+    path.basename(path.fromFileUrl(endIncideTestFolder), ".ts")
+  }.spec.ts`;
   const endTestFile = new URL(endNameFile, endIncideTestFolder);
 
   console.log(`? Write ${endFile}`);
