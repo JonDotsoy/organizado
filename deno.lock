@@ -17,9 +17,14 @@
   },
   "npm": {
     "specifiers": {
+      "husky": "husky@8.0.3",
       "ulid": "ulid@2.3.0"
     },
     "packages": {
+      "husky@8.0.3": {
+        "integrity": "sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==",
+        "dependencies": {}
+      },
       "ulid@2.3.0": {
         "integrity": "sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==",
         "dependencies": {}

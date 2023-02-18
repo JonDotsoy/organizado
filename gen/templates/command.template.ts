@@ -1,4 +1,3 @@
-import { basename, fromFileUrl } from "path";
 import { fileURLtoKeyName } from "../../utils/fileURLtoKeyName.ts";
 import { relativeURL } from "./relativeURL.ts";
 

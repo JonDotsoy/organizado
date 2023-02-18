@@ -29,16 +29,15 @@ const commandHandler = async (args: string[]) => {
     testsFolder,
   );
 
-  const endNameFile = `${
-    path.basename(path.fromFileUrl(endIncideTestFolder), ".ts")
-  }.spec.ts`;
+  const endNameFile = `${path.basename(path.fromFileUrl(endIncideTestFolder), ".ts")
+    }.spec.ts`;
   const endTestFile = new URL(endNameFile, endIncideTestFolder);
 
-  console.log(`? Writed ${endFile}`);
-  console.log(`? Writed ${endTestFile}`);
+  console.log(`? Write ${endFile}`);
+  console.log(`? Write ${endTestFile}`);
 
-  const payload = await commandTemplate({ out: endFile });
-  const payloadSpec = await commandTestTemplate({
+  const payload = commandTemplate({ out: endFile });
+  const payloadSpec = commandTestTemplate({
     out: endTestFile,
     fileToTest: endFile,
   });
@@ -49,8 +48,8 @@ const commandHandler = async (args: string[]) => {
   await Deno.writeFile(endFile, new TextEncoder().encode(payload), {});
   await Deno.writeFile(endTestFile, new TextEncoder().encode(payloadSpec), {});
 
-  console.log(`✅ Writed ${endFile}`);
-  console.log(`✅ Writed ${endTestFile}`);
+  console.log(`✅ Write ${endFile}`);
+  console.log(`✅ Write ${endTestFile}`);
 };
 
 const GENCli = () => {
