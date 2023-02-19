@@ -1,4 +1,5 @@
 import { decodeTime } from "npm:ulid";
+import { flags } from "../deeps.ts";
 import { GEN, gen } from "../utils/gen.ts";
 import { TaskEvent } from "./task-event.dto.ts";
 
@@ -13,6 +14,9 @@ export class TaskDetail {
     readonly updatedAt: Date | null,
     readonly taskRelated: Set<string>,
     readonly comments: Map<string, { comment: string }>,
+    readonly totalCountTimer: null | number,
+    readonly withTimer: null | boolean,
+    readonly currentTimer: { start: number } | null,
   ) {}
 
   static fromEvents(id: string, location: URL): TaskGen {
@@ -21,6 +25,10 @@ export class TaskDetail {
     let createdAt: Date | null = null;
     let updatedAt: Date | null = null;
     const comments: Map<string, { comment: string }> = new Map();
+    let startTimer: null | number = null;
+    let totalCountTimer: null | number = 0;
+    let withTimer: null | boolean = false;
+    let currentTimer: { start: number } | null = null;
 
     return gen<TaskEvent, TaskDetail>(
       {
@@ -28,6 +36,22 @@ export class TaskDetail {
         Created: (_, { id }) => createdAt = new Date(decodeTime(id)),
         RelatedTask: (event) => taskRelated.add(event.taskRelated),
         UpdateTitle: (event) => title = event.title,
+        StartTimer: (event) => {
+          if (startTimer === null) {
+            startTimer = event.startTimer;
+            currentTimer = { start: startTimer };
+            withTimer = true;
+          }
+        },
+        StopTimer: (event) => {
+          if (startTimer) {
+            totalCountTimer = (totalCountTimer ?? 0) +
+              (event.stopTimer - startTimer);
+            startTimer = null;
+            currentTimer = null;
+            withTimer = null;
+          }
+        },
       },
       [
         (_, _1, { id }) => updatedAt = new Date(decodeTime(id)),
@@ -41,6 +65,9 @@ export class TaskDetail {
           updatedAt,
           taskRelated,
           comments,
+          totalCountTimer,
+          withTimer,
+          currentTimer,
         ),
     );
   }

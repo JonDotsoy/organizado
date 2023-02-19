@@ -12,10 +12,11 @@ export class ProjectWorkspace {
     readonly projectGen: ProjectGen,
   ) {}
 
-  async *listTasks() {
+  async *listTaskIds() {
+    const taskIds = new Set<string>();
     try {
       for await (
-        const taskRelativePath of await Deno.readDir(
+        const taskRelativePath of Deno.readDir(
           this.workspace.projectsTasksLocation(
             this.projectGen.getSnap().location,
           ),
@@ -28,16 +29,38 @@ export class ProjectWorkspace {
             0,
             taskRelativePath.name.length - ".jsonl".length,
           );
-          yield await this.selectTask(taskId);
+          taskIds.add(taskId);
         }
       }
     } catch (ex) {
       if (typeof ex === "object" && ex !== null && ex.code === "ENOENT") return;
       throw ex;
     }
+
+    yield* Array.from(taskIds).sort();
   }
 
-  async selectTask(taskId: string) {
+  async *listTasks() {
+    for await (const taskId of this.listTaskIds()) {
+      yield this.selectTask(taskId);
+    }
+  }
+
+  async resolveTaskId(proposalTaskId: string) {
+    const indexString = /\{(\d+)\}/.exec(proposalTaskId)?.at(1);
+    if (indexString) {
+      const index = Number(indexString);
+      let n = 0;
+      for await (const taskId of this.listTaskIds()) {
+        n = n + 1;
+        if (n === index) return taskId;
+      }
+    }
+    return proposalTaskId;
+  }
+
+  async selectTask(proposalTaskId: string) {
+    const taskId = await this.resolveTaskId(proposalTaskId);
     const location = new URL(
       `${taskId}.jsonl`,
       this.workspace.projectsTasksLocation(this.projectGen.getSnap().location),

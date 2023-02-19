@@ -9,6 +9,7 @@ import ProjectSelectCommand from "./project/project-select.command.ts";
 import TaskEditCommand from "./tasks/task-edit.command.ts";
 import TaskFocusCommand from "./tasks/task-focus.command.ts";
 import TaskHelpCommand from "./tasks/task-help.command.ts";
+import TaskInfoCommand from "./tasks/task-info.command.ts";
 import TaskListCommand from "./tasks/task-list.command.ts";
 import TaskNewCommand from "./tasks/task-new.command.ts";
 
@@ -54,9 +55,12 @@ export class CliModule implements CommandType {
           case "new":
           case "n":
             return new TaskNewCommand(this.workspace).handler(args.slice(2));
+          case "info":
+          case "i":
+            return new TaskInfoCommand(this.workspace).handler(args.slice(2));
           case "focus":
           case "f":
-            return new TaskFocusCommand().handler(args.slice(2));
+            return new TaskFocusCommand(this.workspace).handler(args.slice(2));
         }
         return new TaskHelpCommand().handler(args.slice(1));
     }

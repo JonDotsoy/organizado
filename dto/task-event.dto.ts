@@ -13,9 +13,19 @@ export interface RelatedTask {
   taskRelated: string;
 }
 
+export interface StartTimer {
+  startTimer: number;
+}
+
+export interface StopTimer {
+  stopTimer: number;
+}
+
 export type TaskEvent = Event<{
   Created: true;
   UpdateTitle: UpdateTitle;
   CreateComment: CreateComment;
   RelatedTask: RelatedTask;
+  StartTimer: StartTimer;
+  StopTimer: StopTimer;
 }>;

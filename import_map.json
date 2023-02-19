@@ -2,8 +2,11 @@
   "imports": {
     "path": "https://deno.land/std@0.170.0/path/mod.ts",
     "yaml": "npm:yaml",
+    "colors": "https://deno.land/std@0.177.0/fmt/colors.ts",
     "ulid": "npm:ulid",
     "flags": "https://deno.land/std@0.175.0/flags/mod.ts",
-    "cliffy_prompt": "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts"
+    "cliffy_prompt": "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts",
+    "cliffy_keypress": "https://deno.land/x/cliffy@v0.25.7/keypress/mod.ts",
+    "asserts": "https://deno.land/std@0.177.0/testing/asserts.ts"
   }
 }
