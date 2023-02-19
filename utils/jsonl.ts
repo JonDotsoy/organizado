@@ -1,9 +1,16 @@
-import { readline } from "https://deno.land/x/readline@v1.1.0/mod.ts";
+import { readline, ReadLineOptions } from "./readline.ts";
 
-export async function* readFile(location: string | URL) {
+export interface ReadFileOptions {
+  readlineOptions?: ReadLineOptions;
+}
+
+export async function* readFile(
+  location: string | URL,
+  options?: ReadFileOptions,
+) {
   const file = await Deno.open(location);
 
-  for await (const line of readline(file)) {
+  for await (const line of readline(file, options?.readlineOptions)) {
     if (line.length) yield JSON.parse(new TextDecoder().decode(line));
   }
 

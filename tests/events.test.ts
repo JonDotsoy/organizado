@@ -1,5 +1,5 @@
 import { ProjectEvent } from "../dto/project-event.dto.ts";
-import { factory } from "npm:ulid";
+import { factory } from "ulid";
 import { ProjectDetail } from "../dto/project-detail.dto.ts";
 import { TaskDetail } from "../dto/task-detail.dto.ts";
 import { assertSnapshot } from "https://deno.land/std@0.158.0/testing/snapshot.ts";

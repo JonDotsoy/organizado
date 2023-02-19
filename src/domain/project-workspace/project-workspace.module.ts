@@ -1,8 +1,12 @@
-import { ulid } from "npm:ulid";
+import { ulid } from "ulid";
 import { ProjectGen } from "../../../dto/project-detail.dto.ts";
 import { TaskDetail, TaskGen } from "../../../dto/task-detail.dto.ts";
 import { readFile } from "../../../utils/jsonl.ts";
 import { WorkspaceModule } from "./../workspace/workspace.module.ts";
+
+interface SelectTaskOptions {
+  watch?: boolean;
+}
 
 export class ProjectWorkspace {
   private tasks: Map<string, TaskGen> = new Map();
@@ -59,35 +63,29 @@ export class ProjectWorkspace {
     return proposalTaskId;
   }
 
-  async selectTask(proposalTaskId: string) {
+  async selectTask(proposalTaskId: string, options?: SelectTaskOptions) {
     const taskId = await this.resolveTaskId(proposalTaskId);
     const location = new URL(
       `${taskId}.jsonl`,
       this.workspace.projectsTasksLocation(this.projectGen.getSnap().location),
     );
-    const taskGen = TaskDetail.fromEvents(taskId, location);
-    for await (const event of readFile(location)) {
-      taskGen.next(event);
-    }
-    this.workspace.subscribeGen(taskGen);
+    const taskGen = await TaskDetail.fromLocation(taskId, location, {
+      watch: options?.watch,
+    });
+    this.tasks.set(taskId, taskGen);
     return taskGen;
   }
 
   async createTask(): Promise<TaskGen> {
-    const id = ulid();
+    const taskId = ulid();
     const location = new URL(
-      `${id}.jsonl`,
+      `${taskId}.jsonl`,
       this.workspace.projectsTasksLocation(this.projectGen.getSnap().location),
     );
-    const taskGen = TaskDetail.fromEvents(id, location);
-    this.tasks.set(id, taskGen);
-    await this.workspace.subscribeGen(taskGen);
-    taskGen.next({ id, userId: "", event: { Created: true } });
-    this.projectGen.next({
-      id: ulid(),
-      userId: "",
-      event: { CreateTask: { taskId: id } },
-    });
+    const taskGen = await TaskDetail.fromLocation(taskId, location);
+    this.tasks.set(taskId, taskGen);
+    taskGen.pushEvent("Created", true);
+    this.projectGen.pushEvent("CreateTask", { taskId });
     return taskGen;
   }
 }

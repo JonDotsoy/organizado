@@ -1,7 +1,11 @@
-import { decodeTime } from "npm:ulid";
+import { decodeTime } from "ulid";
 import { flags } from "../deeps.ts";
-import { GEN, gen } from "../utils/gen.ts";
+import { GEN, openGen } from "../utils/gen.ts";
 import { TaskEvent } from "./task-event.dto.ts";
+
+interface FromLocationOptions {
+  watch?: boolean;
+}
 
 export type TaskGen = GEN<TaskEvent, TaskDetail>;
 
@@ -19,7 +23,11 @@ export class TaskDetail {
     readonly currentTimer: { start: number } | null,
   ) {}
 
-  static fromEvents(id: string, location: URL): TaskGen {
+  static fromLocation(
+    id: string,
+    location: URL,
+    options?: FromLocationOptions,
+  ): Promise<TaskGen> {
     let title: string | null = null;
     const taskRelated: Set<string> = new Set();
     let createdAt: Date | null = null;
@@ -30,7 +38,8 @@ export class TaskDetail {
     let withTimer: null | boolean = false;
     let currentTimer: { start: number } | null = null;
 
-    return gen<TaskEvent, TaskDetail>(
+    return openGen<TaskEvent, TaskDetail>(
+      location,
       {
         CreateComment: ({ id, comment }) => comments.set(id, { comment }),
         Created: (_, { id }) => createdAt = new Date(decodeTime(id)),
@@ -69,6 +78,9 @@ export class TaskDetail {
           withTimer,
           currentTimer,
         ),
+      {
+        watchGen: options?.watch,
+      },
     );
   }
 }

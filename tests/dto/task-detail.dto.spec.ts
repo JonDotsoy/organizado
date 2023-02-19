@@ -2,7 +2,7 @@ import { assert, assertEquals } from "asserts";
 import { TaskDetail } from "../../dto/task-detail.dto.ts";
 
 Deno.test("Event timer", () => {
-  const taskGen = TaskDetail.fromEvents("", new URL("file:///"));
+  const taskGen = TaskDetail.fromLocation("", new URL("file:///"));
 
   taskGen.pushEvent("StartTimer", { startTimer: 1 });
   taskGen.pushEvent("StopTimer", { stopTimer: 100 });
@@ -11,7 +11,7 @@ Deno.test("Event timer", () => {
 });
 
 Deno.test("Event multiple timer", () => {
-  const taskGen = TaskDetail.fromEvents("", new URL("file:///"));
+  const taskGen = TaskDetail.fromLocation("", new URL("file:///"));
 
   taskGen.pushEvent("StartTimer", { startTimer: 1 });
   taskGen.pushEvent("StopTimer", { stopTimer: 100 });
@@ -23,7 +23,7 @@ Deno.test("Event multiple timer", () => {
 });
 
 Deno.test("Event repeat event start", () => {
-  const taskGen = TaskDetail.fromEvents("", new URL("file:///"));
+  const taskGen = TaskDetail.fromLocation("", new URL("file:///"));
 
   taskGen.pushEvent("StartTimer", { startTimer: 1 });
   taskGen.pushEvent("StartTimer", { startTimer: 20 });
@@ -37,7 +37,7 @@ Deno.test("Event repeat event start", () => {
 });
 
 Deno.test("Status current timer", () => {
-  const taskGen = TaskDetail.fromEvents("", new URL("file:///"));
+  const taskGen = TaskDetail.fromLocation("", new URL("file:///"));
 
   taskGen.pushEvent("StartTimer", { startTimer: 1 });
 

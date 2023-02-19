@@ -24,15 +24,15 @@ export default class TaskFocusCommand implements CommandType {
     );
 
     const taskGen = await projectWorkspace.selectTask(taskId);
-    let timerStart = Date.now();
-    let getTimmerStatus = () => {
+    const timerStart = Date.now();
+    const getTimerStatus = () => {
       const ms = Date.now() - timerStart;
       return durationString(ms);
     };
 
     const interf = consoleInteractive(() =>
       template(
-        colors.gray(`Focus Timer: ${getTimmerStatus()}`),
+        colors.gray(`Focus Timer: ${getTimerStatus()}`),
         `${loggedTask(null, taskGen.getSnap())}`,
         `${loggedTaskInprogress(taskGen.getSnap())}`,
         ``,
@@ -59,15 +59,5 @@ export default class TaskFocusCommand implements CommandType {
         interf.stop();
       }
     });
-
-    // while (true) {
-    //   console.clear()
-    //   console.log(loggedTask(null, taskGen.getSnap()));
-    //   const { ctrlKey, key } = await keypress()
-    //   if (key === "q" || (ctrlKey && key === "c")) {
-    //     console.log(colors.gray("exit"))
-    //     break
-    //   }
-    // }
   }
 }

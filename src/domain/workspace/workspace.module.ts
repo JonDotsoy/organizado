@@ -1,10 +1,14 @@
-import { ulid } from "npm:ulid";
+import { ulid } from "ulid";
 import { ProjectDetail, ProjectGen } from "../../../dto/project-detail.dto.ts";
 import { GEN } from "../../../utils/gen.ts";
 import { readFile } from "../../../utils/jsonl.ts";
 import { ProjectWorkspace } from "../project-workspace/project-workspace.module.ts";
 import { basename } from "https://deno.land/std@0.177.0/path/mod.ts";
 import { Configuration } from "../../../dto/configuration.dto.ts";
+
+interface SelectProjectOptions {
+  watch?: boolean;
+}
 
 export class WorkspaceModule {
   private projects = new Map<string, ProjectWorkspace>();
@@ -65,55 +69,29 @@ export class WorkspaceModule {
     );
   }
 
-  async subscribeGen(gen: GEN<any, any>) {
-    const snap = gen.getSnap();
-    await Deno.mkdir(new URL("./", snap.location), { recursive: true });
-    const writeStream = await Deno.open(snap.location, {
-      append: true,
-      create: true,
-    });
-    gen.notificationEvents.subscribe((event) => {
-      writeStream.write(new TextEncoder().encode(`${JSON.stringify(event)}\n`));
-    });
-    globalThis.addEventListener("unload", () => {
-      writeStream.close();
-    });
-  }
-
   async createProject(): Promise<ProjectGen> {
-    const id = ulid();
-    const location = new URL(`${id}.jsonl`, this.projectsDirLocation);
-    const projectGen = ProjectDetail.fromEvents(id, location);
+    const projectId = ulid();
+    const location = new URL(`${projectId}.jsonl`, this.projectsDirLocation);
+    const projectGen = await ProjectDetail.fromLocation(projectId, location);
     const projectWorkspace = new ProjectWorkspace(this, projectGen);
-    this.projects.set(id, projectWorkspace);
-    await this.subscribeGen(projectWorkspace.projectGen);
-    projectWorkspace.projectGen.next({
-      id,
-      userId: "",
-      event: { Created: true },
-    });
+    this.projects.set(projectId, projectWorkspace);
+    projectGen.pushEvent("Created", true);
     return projectGen;
   }
 
-  async selectProject(id: string): Promise<ProjectWorkspace> {
-    const projectDetailEvents = this.projects.get(id);
+  async selectProject(
+    projectId: string,
+    options?: SelectProjectOptions,
+  ): Promise<ProjectWorkspace> {
+    const projectDetailEvents = this.projects.get(projectId);
     if (projectDetailEvents) return projectDetailEvents;
-    const location = new URL(`${id}.jsonl`, this.projectsDirLocation);
-    const projectGen = ProjectDetail.fromEvents(id, location);
+    const location = new URL(`${projectId}.jsonl`, this.projectsDirLocation);
+    const projectGen = await ProjectDetail.fromLocation(projectId, location, {
+      watch: options?.watch,
+    });
     const projectWorkspace = new ProjectWorkspace(this, projectGen);
-    try {
-      for await (const data of readFile(location)) {
-        projectGen.next(data);
-      }
-      this.projects.set(id, projectWorkspace);
-      await this.subscribeGen(projectWorkspace.projectGen);
-      return projectWorkspace;
-    } catch (ex) {
-      if (typeof ex === "object" && ex !== null && ex.code === "ENOENT") {
-        throw new Error(`Cannot found project ${id}`);
-      }
-      throw ex;
-    }
+    this.projects.set(projectId, projectWorkspace);
+    return projectWorkspace;
   }
 
   static async load(baseLocation: URL) {

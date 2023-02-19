@@ -1,4 +1,8 @@
-import { ulid } from "npm:ulid";
+import { detectPrng, ulid } from "ulid";
+import { readFile } from "./jsonl.ts";
+import { ContinueController } from "./readline.ts";
+
+const instanceId = ulid();
 
 class NotificationSignal<T = void> {
   private subs: ((data: T) => void)[] = [];
@@ -67,7 +71,7 @@ export class GEN<T extends { event: Record<any, any> }, E> {
     });
   }
 
-  next(...events: T[]) {
+  writeManyEvents(...events: T[]) {
     for (const event of events) {
       if (
         typeof event === "object" && event !== null && "event" in event
@@ -89,11 +93,66 @@ export class GEN<T extends { event: Record<any, any> }, E> {
     valueEvent: Exclude<T["event"][K], undefined>,
   ) {
     // @ts-ignore
-    this.next({ id: ulid(), event: { [keyEvent]: valueEvent } });
+    this.writeManyEvents({
+      iid: instanceId,
+      id: ulid(),
+      event: { [keyEvent]: valueEvent },
+    });
+  }
+
+  static async subscribeGen<T extends GEN<any, any>>(
+    location: URL,
+    instanceGen: T,
+  ) {
+    await Deno.mkdir(new URL("./", location), { recursive: true });
+    const writeStream = await Deno.open(location, {
+      append: true,
+      create: true,
+    });
+    instanceGen.notificationEvents.subscribe((event) => {
+      if (
+        typeof event === "object" && event !== null &&
+        typeof event.iid === "string" && event.iid === instanceId
+      ) {
+        writeStream.write(
+          new TextEncoder().encode(`${JSON.stringify(event)}\n`),
+        );
+      }
+    });
+    globalThis.addEventListener("unload", () => {
+      writeStream.close();
+    });
+  }
+
+  static async openGen<T extends GEN<any, any>>(
+    location: URL,
+    instanceGen: T,
+    options?: OpenGenOptions,
+  ) {
+    const continueController = new ContinueController();
+    Promise.resolve().then(async () => {
+      for await (
+        const data of readFile(location, {
+          readlineOptions: {
+            continue: continueController,
+            continueWatch: options?.watchGen,
+          },
+        })
+      ) {
+        instanceGen.writeManyEvents(data);
+      }
+    });
+    await continueController.waitToContinue();
+    await this.subscribeGen(location, instanceGen);
   }
 }
 
-export const gen = <T extends { event: Record<any, any> }, E>(
+export interface OpenGenOptions {
+  watchGen?: boolean;
+}
+
+export const openGen = async <T extends { event: Record<any, any> }, E>(
+  location: URL,
   mapChanges: A<T>,
   middleware: (<K extends keyof T["event"]>(
     keyEvent: K,
@@ -101,4 +160,11 @@ export const gen = <T extends { event: Record<any, any> }, E>(
     target: T,
   ) => void)[],
   returnNext: () => E,
-) => new GEN(mapChanges, middleware, returnNext);
+  options?: OpenGenOptions,
+) => {
+  const instanceGen = new GEN(mapChanges, middleware, returnNext);
+
+  await GEN.openGen(location, instanceGen, options);
+
+  return instanceGen;
+};
