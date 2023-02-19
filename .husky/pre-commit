@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-git diff --staged --name-only | grep -i -E ".(ts|tsx|json|js|jsx)$" | xargs -I_ deno fmt --check _
+# git diff --staged --name-only | grep -i -E ".(ts|tsx|json|js|jsx)$" | xargs -I_ deno fmt --check _
+deno fmt --check
