@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-for e in $(git diff --staged --name-only | grep ".ts$")
+for e in $(git diff --staged --name-only | grep -i -E ".(ts|tsx|json|js|jsx)$")
 do
   deno fmt $e
   git add $e
