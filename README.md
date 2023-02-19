@@ -7,7 +7,15 @@ Project to order your tasks with your terminal.
 Install with Deno
 
 ```sh
-deno install -f --allow-env=HOME --allow-read=$HOME/.organizado/ --allow-write=$HOME/.organizado/ https://deno.land/x/organizado/cli.ts
+deno install \
+  -f \
+  -r \
+  --allow-env=HOME \
+  --allow-read=$HOME/.organizado/ \
+  --allow-write=$HOME/.organizado/ \
+  --unstable \
+  --import-map https://deno.land/x/organizado/import_map.json \
+  https://deno.land/x/organizado/cli.ts
 ```
 
 ## Commands
