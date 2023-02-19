@@ -78,7 +78,7 @@ export class GEN<T extends { event: Record<any, any> }, E> {
       ) {
         this.notificationEvents.notify(event);
         for (const [keyEvent, bodyEvent] of Object.entries(event.event)) {
-          this.mapChanges[keyEvent](bodyEvent, event);
+          this.mapChanges[keyEvent]?.(bodyEvent, event);
           this.middleware.forEach((mid) => mid(keyEvent, bodyEvent, event));
         }
       }

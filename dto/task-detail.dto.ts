@@ -16,6 +16,7 @@ export class TaskDetail {
     readonly title: string | null,
     readonly createdAt: Date | null,
     readonly updatedAt: Date | null,
+    readonly archivedAt: Date | null,
     readonly taskRelated: Set<string>,
     readonly comments: Map<string, { comment: string }>,
     readonly totalCountTimer: null | number,
@@ -37,12 +38,14 @@ export class TaskDetail {
     let totalCountTimer: null | number = 0;
     let withTimer: null | boolean = false;
     let currentTimer: { start: number } | null = null;
+    let archivedAt: null | Date = null;
 
     return openGen<TaskEvent, TaskDetail>(
       location,
       {
         CreateComment: ({ id, comment }) => comments.set(id, { comment }),
         Created: (_, { id }) => createdAt = new Date(decodeTime(id)),
+        Archived: (_, { id }) => archivedAt = new Date(decodeTime(id)),
         RelatedTask: (event) => taskRelated.add(event.taskRelated),
         UpdateTitle: (event) => title = event.title,
         StartTimer: (event) => {
@@ -72,6 +75,7 @@ export class TaskDetail {
           title,
           createdAt,
           updatedAt,
+          archivedAt,
           taskRelated,
           comments,
           totalCountTimer,

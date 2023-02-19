@@ -11,10 +11,12 @@ export default class TaskHelpCommand implements CommandType {
         `       organizado t [command]`,
         ``,
         `Command:`,
-        `  list             List the tasks`,
-        `  new              Create a new task`,
-        `  edit <task_id>   Edit task`,
-        `  focus <task_id>  Start mode focus task`,
+        `  list               List the tasks`,
+        `  new                Create a new task`,
+        `  edit <task_id>     Edit task`,
+        `  archive <task_id>  Archive task`,
+        `  delete <task_id>   Delete archived task`,
+        `  focus <task_id>    Start mode focus task`,
       ),
     );
   }

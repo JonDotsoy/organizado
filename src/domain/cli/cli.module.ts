@@ -6,6 +6,8 @@ import ProjectHelpCommand from "./project/project-help.command.ts";
 import ProjectListCommand from "./project/project-list.command.ts";
 import ProjectNewCommand from "./project/project-new.command.ts";
 import ProjectSelectCommand from "./project/project-select.command.ts";
+import TaskArchiveCommand from "./tasks/task-archive.command.ts";
+import TaskDeleteCommand from "./tasks/task-delete.command.ts";
 import TaskEditCommand from "./tasks/task-edit.command.ts";
 import TaskFocusCommand from "./tasks/task-focus.command.ts";
 import TaskHelpCommand from "./tasks/task-help.command.ts";
@@ -61,6 +63,14 @@ export class CliModule implements CommandType {
           case "focus":
           case "f":
             return new TaskFocusCommand(this.workspace).handler(args.slice(2));
+          case "archive":
+          case "a":
+            return new TaskArchiveCommand(this.workspace).handler(
+              args.slice(2),
+            );
+          case "delete":
+          case "d":
+            return new TaskDeleteCommand(this.workspace).handler(args.slice(2));
         }
         return new TaskHelpCommand().handler(args.slice(1));
     }

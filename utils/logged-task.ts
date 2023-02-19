@@ -1,10 +1,17 @@
 import * as colors from "colors";
 import { TaskDetail } from "../dto/task-detail.dto.ts";
+import { template } from "./template.ts";
+
+export interface LoggedTaskOptions {
+  showLocation?: boolean;
+}
 
 export const loggedTask = (
   n: number | null | undefined,
-  { id, title, updatedAt, createdAt }: TaskDetail,
+  { id, title, updatedAt, createdAt, archivedAt, ...task }: TaskDetail,
+  options?: LoggedTaskOptions,
 ) => {
+  const showLocation = options?.showLocation ?? false;
   const opts: string[] = [];
 
   if (updatedAt) {
@@ -27,8 +34,25 @@ export const loggedTask = (
       }`,
     );
   }
+  if (archivedAt) {
+    opts.push(
+      `Archived At ${
+        archivedAt.toLocaleString(undefined, {
+          dateStyle: "full",
+          timeStyle: "medium",
+        })
+      }`,
+    );
+  }
 
-  return `${n ? colors.blue(`{${n}} `) : ""}${colors.yellow(`${id}:`)} ${
-    title === null ? colors.gray(`null`) : title
-  }${colors.gray(opts.length ? ` (${opts.join(", ")})` : "")}`;
+  return template(
+    `${n ? colors.blue(`{${n}} `) : ""}${
+      archivedAt ? colors.red(`${id}:`) : colors.yellow(`${id}:`)
+    } ${title === null ? colors.gray(`null`) : title}${
+      colors.gray(opts.length ? ` (${opts.join(", ")})` : "")
+    }`,
+    showLocation
+      ? `  Location: ${colors.cyan(task.location.toString())}`
+      : null,
+  );
 };

@@ -23,6 +23,7 @@ export interface StopTimer {
 
 export type TaskEvent = Event<{
   Created: true;
+  Archived: true;
   UpdateTitle: UpdateTitle;
   CreateComment: CreateComment;
   RelatedTask: RelatedTask;

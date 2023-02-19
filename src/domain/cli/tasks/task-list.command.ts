@@ -2,7 +2,10 @@ import * as colors from "colors";
 import { parse } from "flags";
 import { YAML } from "../../../../deeps.ts";
 import { TaskDetail } from "../../../../dto/task-detail.dto.ts";
-import { loggedTask } from "../../../../utils/logged-task.ts";
+import {
+  loggedTask,
+  LoggedTaskOptions,
+} from "../../../../utils/logged-task.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
 
@@ -13,15 +16,18 @@ const partialTask = ({ id, title, createdAt, updatedAt }: TaskDetail) => ({
   updatedAt,
 });
 
+export interface PrintTaskConsoleOptions {
+  loggedTask?: LoggedTaskOptions;
+}
+
 export default class TaskListCommand implements CommandType {
   constructor(readonly workspace: WorkspaceModule) {}
 
-  printTaskConsole(tasks: TaskDetail[]) {
+  printTaskConsole(tasks: TaskDetail[], options?: PrintTaskConsoleOptions) {
     let n = 0;
     for (const task of tasks) {
       n = n + 1;
-
-      console.log(loggedTask(n, task));
+      console.log(loggedTask(n, task, options?.loggedTask));
     }
   }
 
@@ -34,8 +40,9 @@ export default class TaskListCommand implements CommandType {
   }
 
   async handler(args: string[]) {
-    const { format } = parse(args, {
-      string: "format",
+    const { format, "show-location": showLocation } = parse(args, {
+      string: ["format"],
+      boolean: ["show-archived", "show-location"],
       alias: { format: "f" },
     });
 
@@ -61,7 +68,11 @@ export default class TaskListCommand implements CommandType {
       case "yaml":
         return this.printTaskYAML(tasks);
       default:
-        return this.printTaskConsole(tasks);
+        return this.printTaskConsole(tasks, {
+          loggedTask: {
+            showLocation,
+          },
+        });
     }
   }
 }
