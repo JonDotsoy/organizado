@@ -44,6 +44,8 @@ export class TaskDetail {
       location,
       {
         CreateComment: ({ id, comment }) => comments.set(id, { comment }),
+        EditComment: ({ id, comment }) => comments.set(id, { comment }),
+        DeleteComment: ({ id }) => comments.delete(id),
         Created: (_, { id }) => createdAt = new Date(decodeTime(id)),
         Archived: (_, { id }) => archivedAt = new Date(decodeTime(id)),
         RelatedTask: (event) => taskRelated.add(event.taskRelated),

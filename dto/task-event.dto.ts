@@ -9,6 +9,15 @@ export interface CreateComment {
   comment: string;
 }
 
+export interface EditComment {
+  id: string;
+  comment: string;
+}
+
+export interface DeleteComment {
+  id: string;
+}
+
 export interface RelatedTask {
   taskRelated: string;
 }
@@ -26,6 +35,8 @@ export type TaskEvent = Event<{
   Archived: true;
   UpdateTitle: UpdateTitle;
   CreateComment: CreateComment;
+  EditComment: EditComment;
+  DeleteComment: DeleteComment;
   RelatedTask: RelatedTask;
   StartTimer: StartTimer;
   StopTimer: StopTimer;
