@@ -5,10 +5,10 @@ import { CommandType } from "../command/command.data-type.ts";
 import { keypress } from "cliffy_keypress";
 import * as colors from "colors";
 import { loggedTaskInprogress } from "../../../../utils/logged-task-inprogress.ts";
-import { durationString } from "../../../../utils/duration-string.ts";
-
-const EOL = "\n";
-const template = (...lines: string[]) => lines.join(EOL);
+import { ulid } from "ulid";
+import { Confirm, Input, prompt } from "cliffy_prompt";
+import { loggedTaskComments } from "../../../../utils/logged-task-comments.ts";
+import { template } from "../../../../utils/template.ts";
 
 export default class TaskFocusCommand implements CommandType {
   constructor(
@@ -24,21 +24,35 @@ export default class TaskFocusCommand implements CommandType {
     );
 
     const taskGen = await projectWorkspace.selectTask(taskId);
-    const timerStart = Date.now();
-    const getTimerStatus = () => {
-      const ms = Date.now() - timerStart;
-      return durationString(ms);
-    };
+    const task = taskGen.getSnap();
+    if (task.archivedAt) throw new Error("Cant focus on a task archived");
+
+    let commentSelected: number = task.comments.size - 1;
 
     const interf = consoleInteractive(() =>
       template(
-        colors.gray(`Focus Timer: ${getTimerStatus()}`),
         `${loggedTask(null, taskGen.getSnap())}`,
         `${loggedTaskInprogress(taskGen.getSnap())}`,
+        loggedTaskComments(taskGen.getSnap(), { commentSelected }),
         ``,
         `Usage:`,
         `  ${colors.cyan(">")} ${colors.gray(`Press`)} K ${
           colors.gray(`to start timer or stop the timer`)
+        }`,
+        `  ${colors.cyan(">")} ${colors.gray(`Press`)} M ${
+          colors.gray(`to create a new commnet`)
+        }`,
+        `  ${colors.cyan(">")} ${colors.gray(`Press`)} J ${
+          colors.gray(`to select prev comment`)
+        }`,
+        `  ${colors.cyan(">")} ${colors.gray(`Press`)} L ${
+          colors.gray(`to select next comment`)
+        }`,
+        `  ${colors.cyan(">")} ${colors.gray(`Press`)} D ${
+          colors.gray(`to delete comment selected`)
+        }`,
+        `  ${colors.cyan(">")} ${colors.gray(`Press`)} E ${
+          colors.gray(`to edit comment selected`)
         }`,
         `  ${colors.cyan(">")} ${colors.gray(`Press`)} ctrl + C ${
           colors.gray(`to close this window`)
@@ -46,7 +60,49 @@ export default class TaskFocusCommand implements CommandType {
       )
     );
 
-    keypress().addEventListener("keydown", ({ ctrlKey, key }) => {
+    for await (const { ctrlKey, key } of keypress()) {
+      interf.pause();
+
+      const task = taskGen.getSnap();
+
+      if (key === "j") commentSelected = Math.max(commentSelected - 1, 0);
+      if (key === "l") {
+        commentSelected = Math.min(commentSelected + 1, task.comments.size - 1);
+      }
+      if (key === "d") {
+        const { confirm } = await prompt([
+          {
+            type: Confirm,
+            name: "confirm",
+            message: "are you sure to remove it comment?",
+            default: false,
+          },
+        ]);
+        if (confirm) {
+          taskGen.pushEvent("DeleteComment", {
+            id: Array.from(task.comments.keys())[commentSelected],
+          });
+          commentSelected = Math.max(
+            0,
+            Math.min(commentSelected, task.comments.size - 1),
+          );
+        }
+      }
+      if (key === "e") {
+        const { newComment } = await prompt([{
+          type: Input,
+          name: "newComment",
+          message: "Write new comment:",
+          default: Array.from(task.comments.values())[commentSelected].comment,
+        }]);
+        if (newComment) {
+          taskGen.pushEvent("EditComment", {
+            id: Array.from(task.comments.keys())[commentSelected],
+            comment: newComment,
+          });
+        }
+      }
+
       if (key === "k") {
         if (taskGen.getSnap().withTimer) {
           taskGen.pushEvent("StopTimer", { stopTimer: Date.now() });
@@ -54,10 +110,26 @@ export default class TaskFocusCommand implements CommandType {
           taskGen.pushEvent("StartTimer", { startTimer: Date.now() });
         }
       }
-      if (ctrlKey && key === "c") {
-        keypress().dispose();
-        interf.stop();
+      if (key === "m") {
+        const { newComment } = await prompt([{
+          type: Input,
+          name: "newComment",
+          message: "Write new comment:",
+        }]);
+        if (newComment) {
+          taskGen.pushEvent("CreateComment", {
+            id: ulid(),
+            comment: newComment,
+          });
+          commentSelected = task.comments.size - 1;
+        }
       }
-    });
+      if (ctrlKey && key === "c") {
+        interf.stop();
+        break;
+      }
+
+      interf.resumen();
+    }
   }
 }

@@ -1,18 +1,37 @@
 import * as colors from "colors";
+import { debug } from "../../../../Library/Caches/deno/npm/registry.npmjs.org/yaml/2.1.3/dist/log.d.ts";
+import { durationString } from "./duration-string.ts";
+import { template } from "./template.ts";
 
 export const consoleInteractive = (snap: () => string, timeout = 100) => {
+  const debugInterface = false;
+  const interfaceStarted = Date.now();
+  const getDurationInterface = () =>
+    durationString(Date.now() - interfaceStarted);
   let stopped = false;
+  let paused = false;
   let lastSnap: string | null = null;
   let frames = 0;
   Promise.resolve().then(async () => {
     while (!stopped) {
-      const currentSnap = snap();
-      if (currentSnap !== lastSnap) {
+      const currentSnap = template(
+        snap(),
+        debugInterface
+          ? colors.gray(`\n## Interface Active: ${getDurationInterface()}`)
+          : null,
+      );
+      if (currentSnap !== lastSnap && !paused) {
         frames = frames + 1;
         console.clear();
-        console.log(currentSnap);
+        console.log(template(
+          currentSnap,
+          debugInterface
+            ? colors.gray(
+              `\n## Frames: ${frames.toLocaleString(undefined, {})}`,
+            )
+            : null,
+        ));
         lastSnap = currentSnap;
-        console.log(colors.gray(`\n## Frames: ${frames}`));
       }
       await new Promise((r) => setTimeout(r, timeout));
     }
@@ -20,6 +39,12 @@ export const consoleInteractive = (snap: () => string, timeout = 100) => {
   return {
     stop() {
       stopped = true;
+    },
+    pause() {
+      paused = true;
+    },
+    resumen() {
+      paused = false;
     },
   };
 };

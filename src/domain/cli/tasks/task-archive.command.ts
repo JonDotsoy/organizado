@@ -18,7 +18,11 @@ export default class TaskArchiveCommand implements CommandType {
       configuration.project_selected,
     );
     const taskGen = await projectWorkspace.selectTask(taskId);
+    const task = taskGen.getSnap();
 
+    if (task.currentTimer) {
+      taskGen.pushEvent("StopTimer", { stopTimer: Date.now() });
+    }
     taskGen.pushEvent("Archived", true);
   }
 }
