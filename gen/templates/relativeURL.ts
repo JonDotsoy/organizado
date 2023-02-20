@@ -1,4 +1,6 @@
-import { fromFileUrl, relative } from "path";
+import { path } from "../../deeps.ts";
+
+const { fromFileUrl, relative } = path;
 
 export const relativeURL = (from: URL, to: URL): string => {
   const d = relative(fromFileUrl(from), fromFileUrl(to));

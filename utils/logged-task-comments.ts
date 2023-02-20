@@ -1,6 +1,6 @@
 import { TaskDetail } from "../dto/task-detail.dto.ts";
 import { template } from "./template.ts";
-import * as colors from "colors";
+import { colors } from "../deeps.ts";
 
 interface Options {
   max?: number;

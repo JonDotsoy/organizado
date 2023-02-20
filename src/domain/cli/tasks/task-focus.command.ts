@@ -2,13 +2,18 @@ import { loggedTask } from "../../../../utils/logged-task.ts";
 import { consoleInteractive } from "../../../../utils/console-interactive.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
-import { keypress } from "cliffy_keypress";
-import * as colors from "colors";
+import {
+  cliffy_keypress,
+  cliffy_prompt,
+  colors,
+  ulid,
+} from "../../../../deeps.ts";
 import { loggedTaskInprogress } from "../../../../utils/logged-task-inprogress.ts";
-import { ulid } from "ulid";
-import { Confirm, Input, prompt } from "cliffy_prompt";
 import { loggedTaskComments } from "../../../../utils/logged-task-comments.ts";
 import { template } from "../../../../utils/template.ts";
+
+const { Confirm, Input, prompt } = cliffy_prompt;
+const keypress = cliffy_keypress.keypress;
 
 export default class TaskFocusCommand implements CommandType {
   constructor(

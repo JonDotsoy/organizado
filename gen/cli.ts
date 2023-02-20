@@ -1,7 +1,6 @@
-import { parse } from "flags";
-import * as path from "path";
 import commandTemplate from "./templates/command.template.ts";
 import commandTestTemplate from "./templates/command.spec.template.ts";
+import { flags, path } from "../deeps.ts";
 
 const EOL = "\n";
 const template = (...lines: string[]) => lines.join(EOL);
@@ -9,7 +8,7 @@ const testsFolder = new URL("../tests/", import.meta.url);
 const srcFolder = new URL("../src/", import.meta.url);
 
 const commandHandler = async (args: string[]) => {
-  const { _: [relativePath] } = parse(args);
+  const { _: [relativePath] } = flags.parse(args);
 
   if (typeof relativePath !== "string") {
     throw new Error("Missing the <relative_path> argument");

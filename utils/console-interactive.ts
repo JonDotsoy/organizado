@@ -1,4 +1,4 @@
-import * as colors from "colors";
+import { colors } from "../deeps.ts";
 import { durationString } from "./duration-string.ts";
 import { template } from "./template.ts";
 

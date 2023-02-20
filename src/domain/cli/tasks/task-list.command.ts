@@ -1,6 +1,4 @@
-import * as colors from "colors";
-import { parse } from "flags";
-import { YAML } from "../../../../deeps.ts";
+import { flags, yaml as YAML } from "../../../../deeps.ts";
 import { TaskDetail } from "../../../../dto/task-detail.dto.ts";
 import {
   loggedTask,
@@ -8,6 +6,8 @@ import {
 } from "../../../../utils/logged-task.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
+
+const { parse } = flags;
 
 const partialTask = ({ id, title, createdAt, updatedAt }: TaskDetail) => ({
   id,

@@ -1,8 +1,7 @@
-import * as yaml from "yaml";
-import { parse } from "flags";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
-import { YAML } from "../../../../deeps.ts";
+import { flags, yaml as YAML } from "../../../../deeps.ts";
+const { parse } = flags;
 
 export default class TaskInfoCommand implements CommandType {
   constructor(

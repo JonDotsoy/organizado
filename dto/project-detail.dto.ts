@@ -1,9 +1,9 @@
-import { decodeTime } from "ulid";
+import { ULID } from "../deeps.ts";
 import { GEN, openGen } from "../utils/gen.ts";
-import { Comment } from "./commet.dto.ts";
 import { ProjectEvent } from "./project-event.dto.ts";
 import { TaskDetail } from "./task-detail.dto.ts";
-import { TaskEvent } from "./task-event.dto.ts";
+
+const decodeTime = ULID.decodeTime;
 
 export type ProjectGen = GEN<ProjectEvent, ProjectDetail>;
 
@@ -19,6 +19,7 @@ export class ProjectDetail {
     readonly cratedAt: Date | null,
     readonly updatedAt: Date | null,
     readonly tasks: Map<string, Pick<TaskDetail, "id">>,
+    readonly related: Set<URL>,
   ) {}
 
   static fromLocation(
@@ -30,6 +31,7 @@ export class ProjectDetail {
     let cratedAt: Date | null = null;
     let updatedAt: Date | null = null;
     const tasks: Map<string, Pick<TaskDetail, "id">> = new Map();
+    const related: Set<URL> = new Set();
 
     return openGen<ProjectEvent, ProjectDetail>(
       location,
@@ -37,11 +39,22 @@ export class ProjectDetail {
         Created: (_, { id }) => cratedAt = new Date(decodeTime(id)),
         UpdateTitle: (event) => title = event.title,
         CreateTask: ({ taskId }) => tasks.set(taskId, { id: taskId }),
+        RelatedGit: ({ git }) => related.add(git),
+        RelatedLink: ({ url }) => related.add(url),
       },
       [
         (_, _1, { id }) => updatedAt = new Date(decodeTime(id)),
       ],
-      () => new ProjectDetail(id, title, location, cratedAt, updatedAt, tasks),
+      () =>
+        new ProjectDetail(
+          id,
+          title,
+          location,
+          cratedAt,
+          updatedAt,
+          tasks,
+          related,
+        ),
       {
         watchGen: options?.watch,
       },

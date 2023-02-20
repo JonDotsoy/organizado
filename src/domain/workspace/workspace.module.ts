@@ -1,10 +1,8 @@
-import { ulid } from "ulid";
 import { ProjectDetail, ProjectGen } from "../../../dto/project-detail.dto.ts";
-import { GEN } from "../../../utils/gen.ts";
-import { readFile } from "../../../utils/jsonl.ts";
 import { ProjectWorkspace } from "../project-workspace/project-workspace.module.ts";
 import { basename } from "https://deno.land/std@0.177.0/path/mod.ts";
 import { Configuration } from "../../../dto/configuration.dto.ts";
+import { ulid } from "../../../deeps.ts";
 
 interface SelectProjectOptions {
   watch?: boolean;

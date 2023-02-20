@@ -1,4 +1,4 @@
-import { cliffyPrompt } from "../../../../deeps.ts";
+import { cliffy_prompt } from "../../../../deeps.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
 
@@ -7,9 +7,9 @@ export default class ProjectNewCommand implements CommandType {
     readonly workspace: WorkspaceModule,
   ) {}
   async handler(_args: string[]) {
-    const res = await cliffyPrompt.prompt([
+    const res = await cliffy_prompt.prompt([
       {
-        type: cliffyPrompt.Input,
+        type: cliffy_prompt.Input,
         message: "Choice a title",
         name: "title",
       },

@@ -1,5 +1,4 @@
 {
-  "importMap": "./import_map.json",
   "tasks": {
     "husky": "deno run --allow-env --allow-read npm:husky",
     "husky:install": "deno run --allow-env --allow-read --allow-run=git --allow-write=.husky/ npm:husky install",

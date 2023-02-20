@@ -1,4 +1,4 @@
-import { cliffyPrompt } from "../../../../deeps.ts";
+import { cliffy_prompt } from "../../../../deeps.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
 
@@ -18,9 +18,9 @@ export default class TaskEditCommand implements CommandType {
     const taskGen = await projectWorkspace.selectTask(taskId);
     const task = taskGen.getSnap();
 
-    const changes = await cliffyPrompt.prompt([
+    const changes = await cliffy_prompt.prompt([
       {
-        type: cliffyPrompt.Input,
+        type: cliffy_prompt.Input,
         name: "title",
         message: "Title",
         default: task.title ?? undefined,

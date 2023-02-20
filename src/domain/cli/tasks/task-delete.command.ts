@@ -1,7 +1,8 @@
-import { parse } from "flags";
-import { blue } from "colors";
+import { colors, flags } from "../../../../deeps.ts";
 import { WorkspaceModule } from "../../workspace/workspace.module.ts";
 import { CommandType } from "../command/command.data-type.ts";
+const parse = flags.parse;
+const blue = colors.blue;
 
 export default class TaskDeleteCommand implements CommandType {
   constructor(

@@ -1,7 +1,8 @@
-import { decodeTime } from "ulid";
-import { flags } from "../deeps.ts";
+import { ULID, ulid } from "../deeps.ts";
 import { GEN, openGen } from "../utils/gen.ts";
 import { TaskEvent } from "./task-event.dto.ts";
+
+const decodeTime = ulid;
 
 interface FromLocationOptions {
   watch?: boolean;
@@ -46,8 +47,8 @@ export class TaskDetail {
         CreateComment: ({ id, comment }) => comments.set(id, { comment }),
         EditComment: ({ id, comment }) => comments.set(id, { comment }),
         DeleteComment: ({ id }) => comments.delete(id),
-        Created: (_, { id }) => createdAt = new Date(decodeTime(id)),
-        Archived: (_, { id }) => archivedAt = new Date(decodeTime(id)),
+        Created: (_, { id }) => createdAt = new Date(ULID.decodeTime(id)),
+        Archived: (_, { id }) => archivedAt = new Date(ULID.decodeTime(id)),
         RelatedTask: (event) => taskRelated.add(event.taskRelated),
         UpdateTitle: (event) => title = event.title,
         StartTimer: (event) => {
@@ -68,7 +69,7 @@ export class TaskDetail {
         },
       },
       [
-        (_, _1, { id }) => updatedAt = new Date(decodeTime(id)),
+        (_, _1, { id }) => updatedAt = new Date(ULID.decodeTime(id)),
       ],
       () =>
         new TaskDetail(

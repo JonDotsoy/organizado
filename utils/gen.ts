@@ -1,4 +1,4 @@
-import { detectPrng, ulid } from "ulid";
+import { ulid } from "../deeps.ts";
 import { readFile } from "./jsonl.ts";
 import { ContinueController } from "./readline.ts";
 
