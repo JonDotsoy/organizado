@@ -23,7 +23,7 @@ export default class TaskFocusCommand implements CommandType {
   async handler([taskIdArg]: string[]) {
     const configuration = await this.workspace.getConfiguration();
     if (!configuration.project_selected) throw new Error("No project selected");
-    const taskId = taskIdArg ?? configuration.project_selected;
+    const taskId = taskIdArg ?? configuration.task_selected;
     if (!taskId) throw new Error("Missing the <task_id> argument");
     const projectWorkspace = await this.workspace.selectProject(
       configuration.project_selected,

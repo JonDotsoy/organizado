@@ -81,6 +81,8 @@ export class ProjectWorkspace {
       `${taskId}.jsonl`,
       this.workspace.projectsTasksLocation(this.projectGen.getSnap().location),
     );
+    await Deno.mkdir(new URL("./", location), { recursive: true });
+    await Deno.writeFile(location, new Uint8Array([]));
     const taskGen = await TaskDetail.fromLocation(taskId, location);
     this.tasks.set(taskId, taskGen);
     taskGen.pushEvent("Created", true);

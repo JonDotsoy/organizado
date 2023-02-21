@@ -87,7 +87,7 @@ export class WorkspaceModule {
       const projectGen = await this.createProject();
       const projectId = projectGen.getSnap().id;
 
-      console.log({ projectId });
+      // projectGen.pushEvent("RelatedGit", { git: "" })
 
       await this.gitSetConfig("organizado.project-selected", projectId);
 
