@@ -14,6 +14,7 @@ export default class TaskHelpCommand implements CommandType {
         `  list               List the tasks`,
         `  new                Create a new task`,
         `  edit <task_id>     Edit task`,
+        `  info <task_id>     Info task`,
         `  archive <task_id>  Archive task`,
         `  delete <task_id>   Delete archived task`,
         `  focus <task_id>    Start mode focus task`,

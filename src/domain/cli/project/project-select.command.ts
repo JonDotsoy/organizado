@@ -10,7 +10,8 @@ export default class ProjectSelectCommand implements CommandType {
   async handler([projectId]: string[]) {
     const project = await this.workspace.selectProject(projectId);
     const configuration = await this.workspace.getConfiguration();
-    configuration.project_selected = projectId;
+    configuration.project_selected = project.projectGen.getSnap().id;
+    configuration.task_selected = undefined;
     await this.workspace.putConfiguration(configuration);
   }
 }
