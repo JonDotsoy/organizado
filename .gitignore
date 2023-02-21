@@ -1,2 +1,5 @@
 !.editorconfig
 !.husky
+!.tmp/
+.tmp/*
+!.tmp/index.ts

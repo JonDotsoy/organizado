@@ -11,6 +11,7 @@ import {
 import { loggedTaskInprogress } from "../../../../utils/logged-task-inprogress.ts";
 import { loggedTaskComments } from "../../../../utils/logged-task-comments.ts";
 import { template } from "../../../../utils/template.ts";
+import { tmpdir } from "../../../../.tmp/index.ts";
 
 const { Confirm, Input, prompt } = cliffy_prompt;
 const keypress = cliffy_keypress.keypress;
@@ -60,6 +61,9 @@ export default class TaskFocusCommand implements CommandType {
         `  ${colors.cyan(">")} ${colors.gray(`Press`)} E ${
           colors.gray(`to edit comment selected`)
         }`,
+        `  ${colors.cyan(">")} ${colors.gray(`Press`)} A ${
+          colors.gray(`to edit task on editor`)
+        }`,
         `  ${colors.cyan(">")} ${colors.gray(`Press`)} ctrl + C ${
           colors.gray(`to close this window`)
         }`,
@@ -70,6 +74,21 @@ export default class TaskFocusCommand implements CommandType {
       interf.pause();
 
       const task = taskGen.getSnap();
+
+      if (key === "a") {
+        const tmpfile = new URL(`${task.id}.md`, tmpdir);
+        await Deno.writeFile(
+          tmpfile,
+          new TextEncoder().encode(task.title ?? ""),
+        );
+        const p = await Deno.run({ cmd: ["code", "-w", tmpfile.pathname] });
+        interf.resumen();
+        await p.status();
+        taskGen.pushEvent("UpdateTitle", {
+          title: new TextDecoder().decode(await Deno.readFile(tmpfile)),
+        });
+        await Deno.remove(tmpfile);
+      }
 
       if (key === "j") commentSelected = Math.max(commentSelected - 1, 0);
       if (key === "l") {
