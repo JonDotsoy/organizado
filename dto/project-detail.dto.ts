@@ -20,6 +20,7 @@ export class ProjectDetail {
     readonly updatedAt: Date | null,
     readonly tasks: Map<string, Pick<TaskDetail, "id">>,
     readonly related: Set<URL>,
+    readonly mainDirectory: URL | null,
   ) {}
 
   static fromLocation(
@@ -32,6 +33,7 @@ export class ProjectDetail {
     let updatedAt: Date | null = null;
     const tasks: Map<string, Pick<TaskDetail, "id">> = new Map();
     const related: Set<URL> = new Set();
+    let mainDirectory: URL | null = null;
 
     return openGen<ProjectEvent, ProjectDetail>(
       location,
@@ -41,6 +43,7 @@ export class ProjectDetail {
         CreateTask: ({ taskId }) => tasks.set(taskId, { id: taskId }),
         RelatedGit: ({ git }) => related.add(git),
         RelatedLink: ({ url }) => related.add(url),
+        SetMainDirectory: ({ url }) => mainDirectory = url,
       },
       [
         (_, _1, { id }) => updatedAt = new Date(decodeTime(id)),
@@ -54,6 +57,7 @@ export class ProjectDetail {
           updatedAt,
           tasks,
           related,
+          mainDirectory,
         ),
       {
         watchGen: options?.watch,

@@ -1,1 +1,1 @@
-export const tmpdir = import.meta.url;
+export const tmpdir = new URL(import.meta.url);

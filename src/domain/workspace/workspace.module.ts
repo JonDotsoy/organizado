@@ -73,6 +73,7 @@ export class WorkspaceModule {
     const process = await Deno.run({
       cmd: ["git", "status"],
       stdout: "null",
+      stderr: "null",
     });
     const status = await process.status();
     return status.code === 0;

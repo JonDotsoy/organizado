@@ -12,6 +12,7 @@ import { loggedTaskInprogress } from "../../../../utils/logged-task-inprogress.t
 import { loggedTaskComments } from "../../../../utils/logged-task-comments.ts";
 import { template } from "../../../../utils/template.ts";
 import { tmpdir } from "../../../../.tmp/index.ts";
+import { EditContent } from "../../../../utils/edit-content.ts";
 
 const { Confirm, Input, prompt } = cliffy_prompt;
 const keypress = cliffy_keypress.keypress;
@@ -76,18 +77,14 @@ export default class TaskFocusCommand implements CommandType {
       const task = taskGen.getSnap();
 
       if (key === "a") {
-        const tmpfile = new URL(`${task.id}.md`, tmpdir);
-        await Deno.writeFile(
-          tmpfile,
-          new TextEncoder().encode(task.title ?? ""),
-        );
-        const p = await Deno.run({ cmd: ["code", "-w", tmpfile.pathname] });
-        interf.resumen();
-        await p.status();
         taskGen.pushEvent("UpdateTitle", {
-          title: new TextDecoder().decode(await Deno.readFile(tmpfile)),
+          title: new TextDecoder().decode(
+            await new EditContent().open(
+              new TextEncoder().encode(task.title ?? ""),
+              "md",
+            ),
+          ),
         });
-        await Deno.remove(tmpfile);
       }
 
       if (key === "j") commentSelected = Math.max(commentSelected - 1, 0);

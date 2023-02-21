@@ -16,6 +16,10 @@ interface RelatedGit {
   git: URL;
 }
 
+interface SetMainDirectory {
+  url: URL;
+}
+
 export type ProjectEvent = Event<
   {
     Created: true;
@@ -23,5 +27,6 @@ export type ProjectEvent = Event<
     CreateTask: CreateTask;
     RelatedLink: RelatedLink;
     RelatedGit: RelatedGit;
+    SetMainDirectory: SetMainDirectory;
   }
 >;

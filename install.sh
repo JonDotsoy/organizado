@@ -36,7 +36,7 @@ fi
 
 deno install -f \
   --allow-env=HOME \
-  --allow-run=git,code \
+  --allow-run=git,code,vim \
   --allow-read="$HOME/.organizado/,$SOURCE_DIR/.tmp/" \
   --allow-write="$HOME/.organizado/,$SOURCE_DIR/.tmp/" \
   $SOURCE_DIR/cli.ts
