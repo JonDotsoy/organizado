@@ -70,17 +70,39 @@ export class WorkspaceModule {
   }
 
   async isGitDirectory() {
-    const process = await Deno.run({ cmd: ["git", "status"] });
+    const process = await Deno.run({
+      cmd: ["git", "status"],
+      stdout: "null",
+    });
     const status = await process.status();
     return status.code === 0;
+  }
+
+  async getConfigurationProjectSelected() {
+    const projectSelectedGitConfig = await this.gitGetConfig(
+      "organizado.project-selected",
+    );
+
+    if (!projectSelectedGitConfig) {
+      const projectGen = await this.createProject();
+      const projectId = projectGen.getSnap().id;
+
+      console.log({ projectId });
+
+      await this.gitSetConfig("organizado.project-selected", projectId);
+
+      return projectId;
+    }
+
+    return projectSelectedGitConfig;
   }
 
   async getConfiguration(): Promise<Configuration> {
     try {
       if (await this.isGitDirectory()) {
-        const projectSelectedGitConfig = await this.gitGetConfig(
-          "organizado.project-selected",
-        );
+        const projectSelectedGitConfig = await this
+          .getConfigurationProjectSelected();
+
         const taskSelectedGitConfig = await this.gitGetConfig(
           "organizado.task-selected",
         );
@@ -135,6 +157,7 @@ export class WorkspaceModule {
   async createProject(): Promise<ProjectGen> {
     const projectId = ulid();
     const location = new URL(`${projectId}.jsonl`, this.projectsDirLocation);
+    await Deno.writeFile(location, new Uint8Array());
     const projectGen = await ProjectDetail.fromLocation(projectId, location);
     const projectWorkspace = new ProjectWorkspace(this, projectGen);
     this.projects.set(projectId, projectWorkspace);
