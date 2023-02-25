@@ -1,15 +1,15 @@
 import { ProjectEvent } from "../dto/project-event.dto.ts";
-import { factory } from "ulid";
 import { ProjectDetail } from "../dto/project-detail.dto.ts";
 import { TaskDetail } from "../dto/task-detail.dto.ts";
 import { assertSnapshot } from "https://deno.land/std@0.158.0/testing/snapshot.ts";
 import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { ULID } from "../deeps.ts";
 
 let t = 0;
-const ulid = factory(() => 0);
+const ulid = ULID.factory(() => 0);
 const now = () => ulid(++t);
 
-Deno.test("Events to make project settings", (t) => {
+Deno.test("Events to make project settings", async (t) => {
   const userId = "A";
 
   const events: ProjectEvent[] = [
@@ -18,77 +18,81 @@ Deno.test("Events to make project settings", (t) => {
     // { id: now(), userId, event: { CreateTask: { taskId: now() } } },
   ];
 
-  const projectDetail = ProjectDetail.fromEvents(
+  const projectDetail = await ProjectDetail.fromLocation(
     "A",
     new URL("file:///projects/A.jsonl"),
   );
 
-  assertSnapshot(t, projectDetail.next(...events));
+  assertSnapshot(t, projectDetail.writeManyEvents(...events));
 
   const newTaskId = now();
-  const newTask = TaskDetail.fromEvents(
+  const newTask = await TaskDetail.fromLocation(
     newTaskId,
     new URL(`file:///tasks/${newTaskId}.jsonl`),
   );
 
-  projectDetail.next({
+  projectDetail.writeManyEvents({
     id: now(),
     userId,
     event: { CreateTask: { taskId: newTaskId } },
   });
-  newTask.next({ id: now(), userId, event: { Created: true } });
+  newTask.writeManyEvents({ id: now(), userId, event: { Created: true } });
 
-  assertSnapshot(t, projectDetail.next());
-  assertSnapshot(t, newTask.next());
+  assertSnapshot(t, projectDetail.writeManyEvents());
+  assertSnapshot(t, newTask.writeManyEvents());
   assertSnapshot(
     t,
-    newTask.next({
+    newTask.writeManyEvents({
       id: now(),
       userId,
       event: { UpdateTitle: { title: "FOO" } },
     }),
   );
 
-  newTask.next({
+  newTask.writeManyEvents({
     id: now(),
     userId,
     event: { CreateComment: { id: now(), comment: "BIZ" } },
   });
-  newTask.next({
+  newTask.writeManyEvents({
     id: now(),
     userId,
     event: { CreateComment: { id: now(), comment: "BAZ" } },
   });
 
-  assertSnapshot(t, newTask.next());
+  assertSnapshot(t, newTask.writeManyEvents());
 });
 
 Deno.test("capture changes", async () => {
   const nextFrame = () => new Promise((r) => setTimeout(r, 0));
 
   let called = 0;
-  const projectDetail = ProjectDetail.fromEvents(
+  const projectDetail = await ProjectDetail.fromLocation(
     "A",
     new URL("file:///projects/A.jsonl"),
   );
 
   Promise.resolve().then(async () => {
-    for await (const snap of projectDetail.watch()) {
+    for await (const _snap of projectDetail.watch()) {
       called += 1;
     }
   });
 
-  projectDetail.next({ id: now(), userId: "A", event: { Created: true } });
+  projectDetail.writeManyEvents({
+    id: now(),
+    userId: "A",
+    event: { Created: true },
+  });
 
   await nextFrame();
 
-  projectDetail.next({
+  projectDetail.writeManyEvents({
     id: now(),
     userId: "A",
     event: { UpdateTitle: { title: "FOO" } },
   });
 
-  projectDetail.next({
+  projectDetail.writeManyEvents({
     id: now(),
     userId: "A",
     event: { UpdateTitle: { title: "BIZ" } },
@@ -96,7 +100,7 @@ Deno.test("capture changes", async () => {
 
   await nextFrame();
 
-  projectDetail.next({
+  projectDetail.writeManyEvents({
     id: now(),
     userId: "A",
     event: { UpdateTitle: { title: "TAZ" } },

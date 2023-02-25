@@ -71,12 +71,12 @@ Deno.test({
 
     const project = await workspaceModule.selectProject("000000");
 
-    project.projectGen.next({
+    project.projectGen.writeManyEvents({
       id: "1",
       userId: "A",
       event: { UpdateTitle: { title: "FOO" } },
     });
-    project.projectGen.next({
+    project.projectGen.writeManyEvents({
       id: "2",
       userId: "A",
       event: { UpdateTitle: { title: "BIZ" } },
@@ -166,7 +166,7 @@ Deno.test({
     const projectWorkspace = await workspaceModule.selectProject("000000");
     const taskGen: TaskGen = await projectWorkspace.createTask();
 
-    taskGen.next({
+    taskGen.writeManyEvents({
       id: "AAA",
       userId: "A",
       event: { UpdateTitle: { title: "FOO" } },

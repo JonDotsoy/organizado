@@ -1,7 +1,9 @@
-import {
+import { bytes } from "../deeps.ts";
+
+const {
   concat,
   indexOfNeedle,
-} from "https://deno.land/std@0.156.0/bytes/mod.ts";
+} = bytes;
 
 // const l = await Deno.open(".l", { append: true })
 
